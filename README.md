@@ -1,5 +1,5 @@
 # aws-liftandshift
-Deploying and Provisioning multi tier APP on AWS 
+Deploying multi tier APP on AWS using Lift and Shift Strategy
 
 # prerequisites 
  1. AWSCLI
