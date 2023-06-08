@@ -47,38 +47,38 @@ aws ec2 run-instances --image-id ami-0c55b159cbfafe1f0 --instance-type t2.micro 
 aws ec2 run-instances --image-id ami-0c55b159cbfafe1f0 --instance-type t2.micro --key-name <your-key-name> --security-group-ids <app-security-group-id> --subnet-id <your-subnet-id> --user-data file://userdata/nginx.sh
 ```
 
-8. Create a Route 53 private hosted zone to add backend servers (db01, mc01, rmq01):
+7. Create a Route 53 private hosted zone to add backend servers (db01, mc01, rmq01):
 
 ```
 aws route53 create-hosted-zone --name <your-domain-name> --caller-reference <your-caller-reference> --hosted-zone-config Comment="Private Hosted Zone for Backend Servers"
 ```
 
-9. Build the artifact locally and copy it to the S3 bucket:
+8. Build the artifact locally and copy it to the S3 bucket:
 
 ```
 aws s3 cp <your-artifact> s3://<your-bucket-name>/<your-artifact-name>
 ```
 
-10. Create a role for S3 access EC2:
+9. Create a role for S3 access EC2:
 
 ```
 aws iam create-role --role-name <your-role-name> --assume-role-policy-document file://userdata/s3-role.json
 ```
 
-11. Modify the IAM role for the application server and copy the artifact to the application server:
+10. Modify the IAM role for the application server and copy the artifact to the application server:
 
 ```
 aws ec2 modify-instance-attribute --instance-id <your-instance-id> --iam-instance-profile Name=<your-role-name>
 scp -i <your-key-name>.pem <your-artifact> ec2-user@<your-instance-ip>:/home/ec2-user/
 ```
 
-12. Set up a load balancer:
+11. Set up a load balancer:
 
 ```
 aws elb create-load-balancer --load-balancer-name <your-load-balancer-name> --listeners "Protocol=HTTP,LoadBalancerPort=80,InstanceProtocol=HTTP,InstancePort=8080" --security-groups <elb-security-group-id> --subnets <your-subnet-id>
 ```
 
-13. Set up an auto scaling group for the application server:
+12. Set up an auto scaling group for the application server:
 
 ```
 aws autoscaling create-auto-scaling-group --auto-scaling-group-name <your-auto-scaling-group-name> --launch-configuration-name <your-launch-configuration-name> --min-size 1 --max-size 3 --desired-capacity 2 --availability-zones <your-availability-zones> --load-balancer-names <your-load-balancer-name>
